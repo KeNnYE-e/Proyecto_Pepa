@@ -123,10 +123,50 @@ input:focus, select:focus {
 #instructions {
     margin-top: 425px;
 }
- 
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 400px) {
 	input, select {
 	    width: 120px;
 	}
+}
+
+#loginContainer {
+    width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+#loginContainer h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+#loginContainer input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#loginContainer button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#loginContainer button:hover {
+    background-color: #218838;
 }
