@@ -25,12 +25,14 @@ html, body {
     margin: auto;
     border-radius: 10px;
 }
+
 #mazeContainer #mazeCanvas {
     margin: 0;
     display: block;
     border: solid 2px black;
     height: 400px;
 }
+
 input, select {
     cursor: pointer;
     background-color: rgba(0, 0, 0, 0.30);
@@ -45,19 +47,25 @@ input, select {
     text-align: center;
     text-decoration: none;
     appearance: none;
+    transition: background-color 0.3s ease;
 }
+
 input:hover, select:hover {
-	background-color: rgba(0, 0, 0, 0.70);
+    background-color: rgba(0, 0, 0, 0.70);
 }
+
 input:active, select:active {
-	background-color: black;
+    background-color: black;
 }
+
 input:focus, select:focus {
-	outline: none;
+    outline: none;
 }
+
 .custom-select {
-	display: inline-block;
+    display: inline-block;
 }
+
 .custom-select select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -65,6 +73,7 @@ input:focus, select:focus {
     background-repeat: no-repeat;
     background-position: 125px center;
 }
+
 #Message-Container {
     visibility: hidden;
     color: white;
@@ -79,6 +88,7 @@ input:focus, select:focus {
     background-color: rgba(0, 0, 0, 0.30);
     z-index: 1;
 }
+
 #Message-Container #message {
     width: 300px;
     height: 300px;
@@ -88,24 +98,30 @@ input:focus, select:focus {
     margin-left: -150px;
     margin-top: -150px;
 }
+
+/* Asegurarse de que el contenedor del juego esté oculto al cargar */
 #page {
-	text-align: center;
-	height: auto;
-	width: auto;
-	margin: auto;
+    display: none;
+    text-align: center;
+    height: auto;
+    width: auto;
+    margin: auto;
 }
+
 #page #menu {
     margin: auto;
     padding: 10px;
     height: 65px;
     box-sizing: border-box;
 }
+
 #page #menu h1 {
     margin: 0;
     margin-bottom: 10px;
     font-weight: 600;
     font-size: 3.2rem;
 }
+
 #page #view {
     position: absolute;
     top: 65px;
@@ -115,6 +131,7 @@ input:focus, select:focus {
     width: 100%;
     height: auto;
 }
+
 .border {
     border: 10px black solid;
     border-radius: 10px;
@@ -126,9 +143,9 @@ input:focus, select:focus {
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 400px) {
-	input, select {
-	    width: 120px;
-	}
+    input, select {
+        width: 120px;
+    }
 }
 
 #loginContainer {
@@ -139,6 +156,7 @@ input:focus, select:focus {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 #loginContainer h2 {
@@ -156,6 +174,20 @@ input:focus, select:focus {
     box-sizing: border-box;
 }
 
+/* Añadir estilo para mostrar error en los campos de entrada */
+input.error {
+    border-color: red;
+    background-color: #fdd;
+}
+
+#loginContainer .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: -8px;
+    margin-bottom: 10px;
+    display: none; /* Ocultar por defecto */
+}
+
 #loginContainer button {
     width: 100%;
     padding: 10px;
@@ -165,8 +197,131 @@ input:focus, select:focus {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 #loginContainer button:hover {
     background-color: #218838;
+}
+
+#loginContainer button:active {
+    background-color: #1e7e34;
+}
+
+#loginContainer.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* Spinner de carga */
+#loginContainer .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #28a745;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+    display: none; /* Ocultar por defecto */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal */
+.modal {
+    display: block; /* Default is hidden, can be managed with JS */
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker background overlay */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%; /* Adjust the width as needed */
+    text-align: center;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+    animation: fadeIn 0.3s ease-out; /* Fade-in effect */
+}
+
+.optionButton {
+    display: inline-block;
+    margin: 10px 5px; /* Slightly smaller margins */
+    padding: 12px 24px; /* Larger padding for bigger buttons */
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; /* Slightly larger font size */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.optionButton:hover {
+    background-color: #218838;
+    transform: scale(1.05); /* Slight zoom on hover */
+}
+
+.optionButton:active {
+    background-color: #1e7e34;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Feedback styling */
+#feedback {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.feedbackText {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+.circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.correct {
+    background-color: #28a745;
+}
+
+.incorrect {
+    background-color: #dc3545;
+    animation: shake 0.5s;
+}
+
+/* Shake animation */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
 }

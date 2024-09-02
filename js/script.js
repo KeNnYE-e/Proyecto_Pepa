@@ -124,17 +124,61 @@ let selectedQuestions = [];
 // Función para mostrar la pregunta
 function showQuestion(questionIndex) {
     const questionObj = selectedQuestions[questionIndex];
-    let questionText = questionObj.question;
-    let options = questionObj.options;
-    let playerAnswer = prompt(questionText + "\n" + options.join("\n"));
+    const questionText = questionObj.question;
+    const options = questionObj.options;
 
-    if (playerAnswer === questionObj.answer) {
-        alert("¡Correcto!");
-        answeredQuestions.push(questionIndex);  // Marcar la pregunta como contestada
-        return true; // Permite avanzar
-    } else {
-        alert("Respuesta incorrecta. Inténtalo de nuevo.");
-        return false; // No permite avanzar hasta responder correctamente
+    // Crear elementos del modal
+    const modal = document.createElement('div');
+    modal.id = 'questionModal';
+    modal.className = 'modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const questionElement = document.createElement('p');
+    questionElement.innerText = questionText;
+    questionElement.id = 'questionText';
+
+    // Feedback element
+    const feedbackElement = document.createElement('div');
+    feedbackElement.id = 'feedback';
+    feedbackElement.style.display = 'none'; // Initially hidden
+
+    modalContent.appendChild(questionElement);
+    modalContent.appendChild(feedbackElement);
+
+    options.forEach(option => {
+        const optionButton = document.createElement('button');
+        optionButton.innerText = option;
+        optionButton.className = 'optionButton';
+        optionButton.onclick = () => {
+            if (option === questionObj.answer) {
+                showFeedback('correct');
+                answeredQuestions.push(questionIndex);
+                setTimeout(() => {
+                    document.body.removeChild(modal); // Remove modal after answering
+                }, 1500); // Adjust time to remove modal
+                return true;
+            } else {
+                showFeedback('incorrect');
+                return false;
+            }
+        };
+        modalContent.appendChild(optionButton);
+    });
+
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal); // Agregar modal a la página
+}
+
+function showFeedback(status) {
+    const feedbackElement = document.getElementById('feedback');
+    feedbackElement.style.display = 'flex'; // Show the feedback element
+
+    if (status === 'correct') {
+        feedbackElement.innerHTML = '<div class="circle correct"></div><span class="feedbackText">¡Correcto!</span>';
+    } else if (status === 'incorrect') {
+        feedbackElement.innerHTML = '<span class="feedbackText">¡Incorrecto!</span><div class="circle incorrect"></div>';
     }
 }
 
@@ -622,19 +666,42 @@ function makeMaze() {
 }
 
 document.getElementById("loginButton").addEventListener("click", function() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const errorMessage = document.getElementById("error-message");
+    const loginSpinner = document.getElementById("loginSpinner");
+
+    // Limpiar mensajes y estilos previos de error
+    email.classList.remove("error");
+    password.classList.remove("error");
+    errorMessage.style.display = "none";
+
+    // Mostrar spinner
+    loginSpinner.style.display = "inline-block";
 
     // Validación simple (esto es solo un ejemplo, no para uso en producción)
-    if (email === "usuario@example.com" && password === "12345") {
-        alert("Inicio de sesión exitoso");
-        document.getElementById("loginContainer").style.display = "none";
-        document.getElementById("page").style.display = "block";
-    } else {
-        alert("Correo o contraseña incorrectos");
-    }
+    setTimeout(function() { // Simular un tiempo de respuesta
+        loginSpinner.style.display = "none"; // Ocultar el spinner
+
+        if (email.value === "usuario@example.com" && password.value === "12345") {
+            // Si es correcto, ocultar la pantalla de inicio de sesión y mostrar el juego
+            document.getElementById("loginContainer").style.display = "none";
+            document.getElementById("page").style.display = "block";
+        } else {
+            // Si es incorrecto, resaltar los campos de entrada y mostrar mensaje de error
+            if (email.value !== "usuario@example.com") {
+                email.classList.add("error");
+            }
+            if (password.value !== "12345") {
+                password.classList.add("error");
+            }
+            errorMessage.innerText = "Correo o contraseña incorrectos";
+            errorMessage.style.display = "block";
+        }
+    }, 1000); // Simula un tiempo de espera de 1 segundo
 });
 
 window.onload = function() {
-    document.getElementById("page").style.display = "none"; // Ocultar el juego inicialmente
+    // Asegurarse de que el juego esté oculto inicialmente
+    document.getElementById("page").style.display = "none";
 };
