@@ -121,8 +121,13 @@ let answeredQuestions = [];
 // Variable global para almacenar las preguntas seleccionadas
 let selectedQuestions = [];
 
+// Variable para controlar si una pregunta está activa
+let questionModalActive = false;
+
 // Función para mostrar la pregunta
 function showQuestion(questionIndex) {
+    if (questionModalActive) return; // Evitar que se abran múltiples ventanas
+
     const questionObj = selectedQuestions[questionIndex];
     const questionText = questionObj.question;
     const options = questionObj.options;
@@ -147,40 +152,89 @@ function showQuestion(questionIndex) {
     modalContent.appendChild(questionElement);
     modalContent.appendChild(feedbackElement);
 
-    options.forEach(option => {
+    // Map keys to options
+    const keyMap = {
+        'R': 0,
+        'T': 1,
+        'Y': 2,
+        'U': 3
+    };
+
+    options.forEach((option, index) => {
         const optionButton = document.createElement('button');
         optionButton.innerText = option;
         optionButton.className = 'optionButton';
-        optionButton.onclick = () => {
-            if (option === questionObj.answer) {
-                showFeedback('correct');
-                answeredQuestions.push(questionIndex);
-                setTimeout(() => {
-                    document.body.removeChild(modal); // Remove modal after answering
-                }, 1500); // Adjust time to remove modal
-                return true;
-            } else {
-                showFeedback('incorrect');
-                return false;
-            }
-        };
+        optionButton.onclick = () => handleAnswer(option, questionObj, questionIndex, modal);
+
         modalContent.appendChild(optionButton);
     });
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal); // Agregar modal a la página
+    questionModalActive = true; // Marcar la ventana como activa
+
+    // Handle keyboard input for answers
+    function handleKeyPress(event) {
+        const key = event.key.toUpperCase();
+        if (key in keyMap) {
+            const selectedOptionIndex = keyMap[key];
+            const selectedOption = options[selectedOptionIndex];
+            handleAnswer(selectedOption, questionObj, questionIndex, modal);
+        }
+    }
+
+    // Attach event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Function to handle answer selection
+    function handleAnswer(selectedOption, questionObj, questionIndex, modal) {
+        if (selectedOption === questionObj.answer) {
+            showFeedback('correct');
+            answeredQuestions.push(questionIndex);
+            setTimeout(() => {
+                feedbackElement.querySelector('.explosion').addEventListener('animationend', () => {
+                    document.body.removeChild(modal); // Remover el modal después de la animación
+                    window.removeEventListener('keydown', handleKeyPress); // Remove key listener after answering
+                    questionModalActive = false; // Marcar la ventana como inactiva
+                });
+            }, 500); // Ajustar el tiempo a la duración de la animación
+        } else {
+            showFeedback('incorrect');
+        }
+    }
 }
 
 function showFeedback(status) {
     const feedbackElement = document.getElementById('feedback');
-    feedbackElement.style.display = 'flex'; // Show the feedback element
+    feedbackElement.style.display = 'flex'; // Mostrar el elemento de feedback
 
     if (status === 'correct') {
-        feedbackElement.innerHTML = '<div class="circle correct"></div><span class="feedbackText">¡Correcto!</span>';
+        feedbackElement.innerHTML = `
+            <div class="circle correct explosion"></div>
+            <span class="feedbackText">¡Correcto!</span>`;
     } else if (status === 'incorrect') {
-        feedbackElement.innerHTML = '<span class="feedbackText">¡Incorrecto!</span><div class="circle incorrect"></div>';
+        feedbackElement.innerHTML = `
+            <span class="feedbackText">¡Incorrecto!</span>
+            <div class="circle incorrect shake"></div>`;
+    }
+
+    // Añadir la animación de explosión para el círculo correcto
+    const explosionElement = feedbackElement.querySelector('.explosion');
+    if (explosionElement) {
+        explosionElement.addEventListener('animationend', () => {
+            explosionElement.style.display = 'none'; // Ocultar el círculo después de la animación
+        });
+    }
+
+    // Ocultar el feedback después de la animación de shake para el incorrecto
+    const shakeElement = feedbackElement.querySelector('.shake');
+    if (shakeElement) {
+        shakeElement.addEventListener('animationend', () => {
+            shakeElement.style.display = 'none'; // Ocultar el círculo después de la animación
+        });
     }
 }
+
 
 // Definición de la clase Maze (Laberinto)
 function Maze(Width, Height) {

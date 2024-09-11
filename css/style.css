@@ -230,6 +230,22 @@ input.error {
     100% { transform: rotate(360deg); }
 }
 
+/* Animación de explosión */
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+.explosion {
+    animation: explode 0.5s forwards;
+}
+
 /* Modal */
 .modal {
     display: block; /* Default is hidden, can be managed with JS */
@@ -298,26 +314,40 @@ input.error {
 }
 
 .circle {
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
+    display: inline-block;
 }
 
 .correct {
-    background-color: #28a745;
+    background-color: green;
 }
 
 .incorrect {
-    background-color: #dc3545;
+    background-color: red;
+}
+
+.explosion {
+    animation: explode 0.5s ease-out;
+}
+
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* La animación shake ya está en el código */
+.shake {
     animation: shake 0.5s;
 }
 
-/* Shake animation */
 @keyframes shake {
     0% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
