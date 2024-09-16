@@ -191,17 +191,18 @@ function showQuestion(questionIndex) {
         if (selectedOption === questionObj.answer) {
             showFeedback('correct');
             answeredQuestions.push(questionIndex);
-            setTimeout(() => {
-                feedbackElement.querySelector('.explosion').addEventListener('animationend', () => {
-                    document.body.removeChild(modal); // Remover el modal después de la animación
-                    window.removeEventListener('keydown', handleKeyPress); // Remove key listener after answering
-                    questionModalActive = false; // Marcar la ventana como inactiva
-                });
-            }, 500); // Ajustar el tiempo a la duración de la animación
+    
+            // Remover inmediatamente el modal después de mostrar la respuesta correcta
+            feedbackElement.querySelector('.explosion').addEventListener('animationend', () => {
+                document.body.removeChild(modal); // Remover el modal sin retraso
+                window.removeEventListener('keydown', handleKeyPress); // Remove key listener after answering
+                questionModalActive = false; // Marcar la ventana como inactiva
+            });
         } else {
             showFeedback('incorrect');
         }
     }
+    
 }
 
 function showFeedback(status) {
