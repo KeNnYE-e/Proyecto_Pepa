@@ -4,17 +4,19 @@ import pyautogui
 
 
 class BluetoothController:
-    def __init__(self, port, baudrate=38400, timeout=1):
+    def __init__(self, port='COM6', baudrate=38400, timeout=1):
+        self.bluetooth = None
+        self.port = port  # Se establece COM6 como puerto predeterminado
         try:
-            self.bluetooth = Serial(port=port, baudrate=baudrate, timeout=timeout)
+            self.bluetooth = Serial(port=self.port, baudrate=baudrate, timeout=timeout)
             sleep(2)  # Esperar para estabilizar la conexión
-            print(f"Conexión establecida en {port}")
+            print(f"Conexión establecida en {self.port}")
         except Exception as e:
-            print(f"Error al conectar con el módulo Bluetooth HC-05: {e}")
+            print(f"Error al conectar con el módulo Bluetooth HC-05 en {self.port}: {e}")
             exit()
 
     def read_data(self):
-        if self.bluetooth.in_waiting > 0:
+        if self.bluetooth and self.bluetooth.in_waiting > 0:
             try:
                 data = self.bluetooth.readline().decode().strip()
                 return data
@@ -23,8 +25,9 @@ class BluetoothController:
         return None
 
     def close_connection(self):
-        self.bluetooth.close()
-        print("Conexión Bluetooth cerrada.")
+        if self.bluetooth:
+            self.bluetooth.close()
+            print("Conexión Bluetooth cerrada.")
 
 
 class CommandProcessor:
@@ -47,7 +50,7 @@ class CommandProcessor:
 
 
 def main():
-    bluetooth_controller = BluetoothController(port='COM7')
+    bluetooth_controller = BluetoothController(port='COM6')  # Puerto COM6 explícito
 
     try:
         while True:
