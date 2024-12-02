@@ -1,20 +1,40 @@
 from serial import Serial
+from serial.tools import list_ports
 from time import sleep
 import pyautogui
 
 
 class BluetoothController:
-    def __init__(self, port, baudrate=38400, timeout=1):
-        try:
-            self.bluetooth = Serial(port=port, baudrate=baudrate, timeout=timeout)
-            sleep(2)  # Esperar para estabilizar la conexión
-            print(f"Conexión establecida en {port}")
-        except Exception as e:
-            print(f"Error al conectar con el módulo Bluetooth HC-05: {e}")
+    def __init__(self, baudrate=38400, timeout=1):
+        self.bluetooth = None
+        self.port = self.detect_bluetooth_port()  # Detectar automáticamente el puerto
+        if not self.port:
+            print("No se encontró un módulo Bluetooth conectado.")
             exit()
 
+        try:
+            self.bluetooth = Serial(port=self.port, baudrate=baudrate, timeout=timeout)
+            sleep(2)  # Esperar para estabilizar la conexión
+            print(f"Conexión establecida en {self.port}")
+        except Exception as e:
+            print(f"Error al conectar con el módulo Bluetooth HC-05 en {self.port}: {e}")
+            exit()
+
+    @staticmethod
+    def detect_bluetooth_port():
+        """
+        Detecta automáticamente el puerto COM donde está conectado el módulo Bluetooth.
+        Retorna el nombre del puerto (e.g., 'COM6') o None si no se encuentra.
+        """
+        ports = list_ports.comports()
+        for port in ports:
+            if "Bluetooth" in port.description or "HC-05" in port.description:
+                print(f"Dispositivo Bluetooth detectado: {port.device}")
+                return port.device
+        return None
+
     def read_data(self):
-        if self.bluetooth.in_waiting > 0:
+        if self.bluetooth and self.bluetooth.in_waiting > 0:
             try:
                 data = self.bluetooth.readline().decode().strip()
                 return data
@@ -23,8 +43,9 @@ class BluetoothController:
         return None
 
     def close_connection(self):
-        self.bluetooth.close()
-        print("Conexión Bluetooth cerrada.")
+        if self.bluetooth:
+            self.bluetooth.close()
+            print("Conexión Bluetooth cerrada.")
 
 
 class CommandProcessor:
@@ -47,7 +68,7 @@ class CommandProcessor:
 
 
 def main():
-    bluetooth_controller = BluetoothController(port='COM7')
+    bluetooth_controller = BluetoothController()
 
     try:
         while True:
