@@ -7,11 +7,10 @@ import pyautogui
 class BluetoothController:
     def __init__(self, baudrate=38400, timeout=1):
         self.bluetooth = None
-        self.port = self.detect_bluetooth_port()  # Detectar automáticamente el puerto
-        if not self.port:
-            print("No se encontró un módulo Bluetooth conectado.")
+        self.port = self.auto_detect_port()
+        if self.port is None:
+            print("No se encontró un módulo Bluetooth HC-05.")
             exit()
-
         try:
             self.bluetooth = Serial(port=self.port, baudrate=baudrate, timeout=timeout)
             sleep(2)  # Esperar para estabilizar la conexión
@@ -21,16 +20,15 @@ class BluetoothController:
             exit()
 
     @staticmethod
-    def detect_bluetooth_port():
-        """
-        Detecta automáticamente el puerto COM donde está conectado el módulo Bluetooth.
-        Retorna el nombre del puerto (e.g., 'COM6') o None si no se encuentra.
-        """
+    def auto_detect_port():
+        """Detecta automáticamente el puerto COM del módulo Bluetooth HC-05."""
+        print("Buscando puerto del módulo Bluetooth HC-05...")
         ports = list_ports.comports()
         for port in ports:
-            if "Bluetooth" in port.description or "HC-05" in port.description:
-                print(f"Dispositivo Bluetooth detectado: {port.device}")
+            if "HC-05" in port.description or "Bluetooth" in port.description:
+                print(f"Módulo Bluetooth encontrado en {port.device}")
                 return port.device
+        print("No se encontró un módulo Bluetooth HC-05.")
         return None
 
     def read_data(self):
@@ -68,7 +66,7 @@ class CommandProcessor:
 
 
 def main():
-    bluetooth_controller = BluetoothController()
+    bluetooth_controller = BluetoothController()  # No se especifica puerto explícito
 
     try:
         while True:
