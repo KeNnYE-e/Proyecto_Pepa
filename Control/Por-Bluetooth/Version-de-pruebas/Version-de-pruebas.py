@@ -6,61 +6,58 @@ import pyautogui
 class BluetoothController:
     def __init__(self, ports, baudrate=9600, timeout=0.01):
         """
-        Controlador Bluetooth optimizado para conexiones rápidas.
-        Intenta conectar automáticamente a uno de los puertos proporcionados.
+        Inicializa la conexión Bluetooth con el primer puerto disponible.
         """
-        self.bluetooth = None
-        for port in ports:
-            try:
-                self.bluetooth = Serial(port=port, baudrate=baudrate, timeout=timeout)
-                print(f"Conexión establecida en {port}")
-                break
-            except Exception as e:
-                print(f"No se pudo conectar en {port}: {e}")
-        
+        self.bluetooth = next(
+            (Serial(port, baudrate, timeout=timeout) for port in ports if self._try_port(port, baudrate, timeout)), 
+            None
+        )
         if not self.bluetooth:
-            print("No se pudo establecer conexión en ninguno de los puertos.")
-            exit()
+            raise ConnectionError("No se pudo establecer conexión en ningún puerto.")
+
+    @staticmethod
+    def _try_port(port, baudrate, timeout):
+        """
+        Intenta abrir un puerto y devuelve True si tiene éxito.
+        """
+        try:
+            Serial(port, baudrate, timeout=timeout).close()
+            return True
+        except:
+            return False
 
     def read_data(self):
         """
-        Lee datos si están disponibles y los devuelve como una cadena limpia.
+        Devuelve datos recibidos, o None si no hay datos disponibles.
         """
-        if self.bluetooth and self.bluetooth.in_waiting > 0:
+        if self.bluetooth and self.bluetooth.in_waiting:
             try:
-                data = self.bluetooth.readline().decode('utf-8').strip()
-                return data
+                return self.bluetooth.readline().decode('utf-8').strip()
             except Exception as e:
                 print(f"Error al leer datos: {e}")
         return None
 
-    def close_connection(self):
+    def close(self):
         """
         Cierra la conexión Bluetooth.
         """
         if self.bluetooth:
             self.bluetooth.close()
-            print("Conexión Bluetooth cerrada.")
+            print("Conexión cerrada.")
 
 
 class CommandProcessor:
     COMMAND_MAP = {
-        "Right": "right",   # Movimiento joystick derecha
-        "Left": "left",     # Movimiento joystick izquierda
-        "Forward": "up",    # Movimiento joystick adelante
-        "Back": "down",     # Movimiento joystick atrás
-        "R": "r",           # Botón A
-        "T": "t",           # Botón B
-        "Y": "y",           # Botón C
-        "U": "u",           # Botón D
+        "Right": "right", "Left": "left", "Forward": "up", "Back": "down",
+        "R": "r", "T": "t", "Y": "y", "U": "u"
     }
 
-    @staticmethod
-    def process_command(command):
+    @classmethod
+    def process(cls, command):
         """
-        Procesa un comando si está mapeado en COMMAND_MAP.
+        Procesa un comando según el mapa de comandos.
         """
-        action = CommandProcessor.COMMAND_MAP.get(command)
+        action = cls.COMMAND_MAP.get(command)
         if action:
             pyautogui.press(action)
             print(f"Comando procesado: {command}")
@@ -68,36 +65,22 @@ class CommandProcessor:
             print(f"Comando desconocido: {command}")
 
 
-class Logger:
-    """
-    Clase para registrar eventos y simplificar depuración.
-    """
-    @staticmethod
-    def log(message, level="INFO"):
-        levels = {"INFO": "[INFO]", "ERROR": "[ERROR]", "DEBUG": "[DEBUG]"}
-        print(f"{levels.get(level, '[INFO]')} {message}")
-
-
 def main():
     """
-    Bucle principal para leer datos y procesar comandos.
+    Bucle principal para manejar la conexión y los comandos.
     """
-    ports = ['COM7']  # Cambia los puertos según tu sistema operativo
-    bluetooth_controller = BluetoothController(ports=ports)
-
+    ports = ['COM7']  # Ajustar según el sistema operativo
     try:
+        controller = BluetoothController(ports)
+        print("Bluetooth listo.")
         while True:
-            data = bluetooth_controller.read_data()
-            if data:
-                Logger.log(f"Datos recibidos: {data}", level="DEBUG")
-                CommandProcessor.process_command(data)
-            
-            # Reducir el tiempo de espera para una respuesta más rápida
-            time.sleep(0.005)
-    except KeyboardInterrupt:
-        Logger.log("Programa interrumpido por el usuario.", level="INFO")
+            if data := controller.read_data():
+                CommandProcessor.process(data)
+            time.sleep(0.01)
+    except (ConnectionError, KeyboardInterrupt) as e:
+        print(f"Finalizando: {e}")
     finally:
-        bluetooth_controller.close_connection()
+        controller.close()
 
 
 if __name__ == "__main__":
