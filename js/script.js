@@ -349,11 +349,11 @@ function DrawMaze(Maze, ctx, cellsize, endSprite = null) {
     var map = Maze.map();
     var cellSize = cellsize;
     var drawEndMethod;
-    ctx.lineWidth = cellSize / 40;
+    ctx.lineWidth = cellSize / 20;
 
     this.redrawMaze = function (size) {
         cellSize = size;
-        ctx.lineWidth = cellSize / 50;
+        ctx.lineWidth = cellSize / 20;
         drawMap();
         drawRedPoints(ctx, redPoints, cellSize); // Dibujar puntos rojos
         drawEndMethod();
